@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Login | Smart Attendance</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Inter, Arial, sans-serif; background: #f4f7fb; color: #172033; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 1rem; }
+        .layout { width: min(900px, 100%); display: grid; grid-template-columns: 1.1fr .9fr; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 40px #183b6320; }
+        .intro { background: #173b63; color: white; padding: 3rem; display: flex; flex-direction: column; justify-content: center; }
+        .intro h1 { margin: 0 0 .8rem; font-size: 2rem; }
+        .intro p { color: #dcecff; line-height: 1.6; }
+        .badge { display: inline-block; color: #b9ddff; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 1.5rem; }
+        .box { padding: 3rem; }
+        h2 { margin-top: 0; color: #173b63; }
+        label { display: block; font-size: .9rem; font-weight: 600; margin-top: 1rem; }
+        input { width: 100%; padding: .75rem; margin-top: .4rem; border: 1px solid #ccd6e2; border-radius: 7px; background: #fff; color: #172033; }
+        input:focus { outline: 2px solid #9ed0f5; border-color: #1769aa; }
+        button { width: 100%; padding: .75rem; margin-top: 1.4rem; border: none; border-radius: 7px; background: #1769aa; color: white; cursor: pointer; font-weight: 600; }
+        button:hover { background: #125487; }
+        .flash { color: #a33b2f; background: #fff0ee; padding: .65rem; border-radius: 6px; font-size: .9rem; }
+        .hint { color: #68758a; font-size: .85rem; line-height: 1.5; margin-top: 1.2rem; }
+        @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .intro { padding: 2rem; } .box { padding: 2rem; } }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <section class="intro">
+            <span class="badge">Smart Attendance</span>
+            <h1>Attendance, organized.</h1>
+            <p>Manage your people roster, monitor real-time recognition, and review date-wise attendance from one central dashboard.</p>
+        </section>
+        <section class="box">
+        <h2>Admin Login</h2>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for m in messages %}
+                    <p class="flash">{{ m }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <label>Username<input type="text" name="username" placeholder="Enter username" required autofocus></label>
+            <label>Password<input type="password" name="password" placeholder="Enter password" required></label>
+            <button type="submit">Log In</button>
+        </form>
+        <p class="hint">Authorized administrators can access the live camera, roster, attendance register, and reports.</p>
+        </section>
+    </div>
+</body>
+</html>

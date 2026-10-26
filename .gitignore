@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+
+.idea/
+.venv/
+venv/
+
+.flask_secret_key
+database/attendance.db
+data/faces/*
+!data/faces/.gitkeep
+data/encodings.pickle
+attendance_*.csv
+
+.env
+*.log

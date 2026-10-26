@@ -1,0 +1,23 @@
+opencv-python
+face_recognition
+numpy
+Flask
+SQLAlchemy>=2.0
+mediapipe
+
+# face_recognition depends on dlib, which needs CMake + a C++ compiler to
+# build from source. If `pip install face_recognition` fails on dlib:
+#
+# Windows: easiest path is
+#     pip install cmake
+#     pip install dlib
+#   If that still fails, install Visual Studio Build Tools (C++ workload)
+#   first, or use a prebuilt dlib wheel matching your Python version.
+#
+# Mac:
+#     brew install cmake
+#     pip install dlib
+#
+# Linux:
+#     sudo apt-get install build-essential cmake
+#     pip install dlib

@@ -1,0 +1,22 @@
+Use the admin dashboard to manage the roster and view the attendance register.
+
+1. Start the server:
+python3 run.py
+
+2. Open:
+http://127.0.0.1:5000
+
+3. Use Roster -> Add profile. Then run the generated enrollment command, for example:
+python3 enroll.py --user-id 5 --name "Name"
+
+4. Return to the dashboard and click "Refresh Known Faces".
+
+The original direct enrollment form is also supported:
+python3 enroll.py --name "Name"
+
+to add a new admin role use 
+
+python3 seed_admin.py --username othernusername --password theirspswd
+
+
+python3 seed_admin.py --username admin1 --password 1234

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Roster | Smart Attendance</title>
+    <style>
+        body { font-family: Arial, sans-serif; background:#f4f7fb; color:#172033; margin:0; }
+        .topbar { background:#173b63; color:white; padding:1rem 5%; display:flex; justify-content:space-between; }
+        a { color:#1769aa; text-decoration:none; } .topbar a { color:#dcecff; margin-left:1rem; }
+        main { max-width:1050px; margin:2rem auto; padding:0 1rem; }
+        .panel { background:white; padding:1.2rem; border-radius:12px; margin-bottom:1.5rem; box-shadow:0 3px 14px #183b6314; }
+        form { display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem; align-items:end; }
+        input { padding:.65rem; border:1px solid #ccd6e2; border-radius:6px; } button { padding:.65rem 1rem; background:#1769aa; color:white; border:0; border-radius:6px; }
+        table { width:100%; border-collapse:collapse; } th,td { padding:.7rem; border-bottom:1px solid #e6ebf0; text-align:left; }
+        .muted { color:#68758a; } @media(max-width:750px){ form{grid-template-columns:1fr;} .topbar{flex-direction:column;gap:.7rem;} }
+    </style>
+</head>
+<body>
+    <div class="topbar"><strong>Smart Attendance</strong><span><a href="{{ url_for('attendance.index') }}">Dashboard</a><a href="{{ url_for('attendance.register') }}">Register</a><a href="{{ url_for('auth.logout') }}">Log out</a></span></div>
+    <main>
+        <h1>People Roster</h1>
+        {% with messages = get_flashed_messages() %}
+            {% for message in messages %}<p style="background:#e5f4ea;color:#197044;padding:.7rem;border-radius:6px;">{{ message }}</p>{% endfor %}
+        {% endwith %}
+        <div class="panel">
+            <h2>Add profile</h2>
+            <p class="muted">Use this form for a student, employee, or any person whose attendance is tracked.</p>
+            <form method="post">
+                <label>Name<input name="name" required></label>
+                <label>Roll / employee no.<input name="roll_number"></label>
+                <label>Email<input type="email" name="email"></label>
+                <label>Section / team / group<input name="section"></label>
+                <button type="submit">Create profile</button>
+            </form>
+        </div>
+        <div class="panel">
+            <h2>Registered people</h2>
+            <table><tr><th>Name</th><th>Roll / employee no.</th><th>Email</th><th>Section / team / group</th><th>Face enrollment</th></tr>
+            {% for user in users %}
+            <tr><td>{{ user.name }}</td><td>{{ user.roll_number or "—" }}</td><td>{{ user.email or "—" }}</td><td>{{ user.section or "—" }}</td>
+                <td>{% if user.get_encodings() %}<span style="color:#197044">Complete</span>{% else %}<span style="color:#a05a00">Pending</span><br><code>python3 enroll.py --user-id {{ user.id }} --name "{{ user.name }}"</code>{% endif %}</td></tr>
+            {% else %}<tr><td colspan="5" class="muted">No profiles yet.</td></tr>{% endfor %}
+            </table>
+        </div>
+    </main>
+</body>
+</html>

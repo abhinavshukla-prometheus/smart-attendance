@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance - Live</title>
+    <style>
+        body { font-family: Inter, Arial, sans-serif; background: #f4f7fb; color: #172033; margin: 0; }
+        .topbar { background: #173b63; color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; }
+        .topbar a { color: #dcecff; text-decoration: none; margin-left: 1rem; }
+        main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .card, .feed { background: white; border-radius: 12px; padding: 1.2rem; box-shadow: 0 3px 14px #183b6314; }
+        .metric { font-size: 2rem; font-weight: bold; color: #1769aa; }
+        .feed img { max-width: 100%; border-radius: 8px; }
+        button { padding: .6rem 1rem; border: 0; border-radius: 6px; background: #1769aa; color: white; cursor: pointer; }
+        #event { margin-top: 1rem; min-height: 1.5rem; color: #197044; }
+        @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } .topbar { flex-direction: column; gap: .7rem; } }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <strong>Smart Attendance</strong>
+        <span>
+            <a href="{{ url_for('attendance.students') }}">Roster</a>
+            <a href="{{ url_for('attendance.register') }}">Attendance Register</a>
+            <a href="{{ url_for('attendance.attendance_table') }}">Attendance Table</a>
+            <a href="{{ url_for('auth.logout') }}" style="margin-left:1rem;">Log out</a>
+        </span>
+    </div>
+    <main>
+        <h1>Admin Dashboard</h1>
+        <p>Welcome, {{ username }}. Monitor the live attendance process and manage your roster.</p>
+        <div class="cards">
+            <div class="card"><div>Total people</div><div class="metric">{{ total_users }}</div></div>
+            <div class="card"><div>Present today</div><div class="metric">{{ present_today }}</div></div>
+            <div class="card"><div>Awaiting enrollment</div><div class="metric">{{ pending_enrollment }}</div></div>
+        </div>
+        <div class="feed">
+            <h2>Live Recognition Feed</h2>
+            <img src="{{ url_for('attendance.stream') }}" alt="Live camera feed">
+            <div id="event"></div>
+        </div>
+
+        <div style="margin-top: 1.2rem;">
+            <button id="refreshBtn">Refresh Known Faces</button>
+            <span id="refreshStatus" style="margin-left:0.6rem; color:#1769aa;"></span>
+        </div>
+        <p style="color:#68758a; font-size:0.9rem;">Create profiles from Roster, complete the guided camera enrollment command, then refresh known faces.</p>
+    </main>
+
+    <script>
+        // Poll every 2s for the most recent attendance event, so the admin
+        // sees confirmation without needing to watch the terminal.
+        async function pollEvent() {
+            try {
+                const res = await fetch("{{ url_for('attendance.last_event') }}");
+                const data = await res.json();
+                if (data.event) {
+                    document.getElementById("event").textContent = data.event;
+                }
+            } catch (e) { /* ignore transient errors */ }
+        }
+        setInterval(pollEvent, 2000);
+
+        document.getElementById("refreshBtn").addEventListener("click", async () => {
+            const statusEl = document.getElementById("refreshStatus");
+            statusEl.textContent = "Refreshing...";
+            try {
+                const res = await fetch("{{ url_for('attendance.refresh_faces') }}", { method: "POST" });
+                const data = await res.json();
+                statusEl.textContent = `Done -- ${data.known_people} people loaded.`;
+            } catch (e) {
+                statusEl.textContent = "Refresh failed -- check the server terminal.";
+            }
+        });
+    </script>
+</body>
+</html>
