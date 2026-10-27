@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Profile | Smart Attendance</title>
+    <style>
+        body { font-family:Arial,sans-serif; background:#f4f7fb; color:#172033; margin:0; }
+        .topbar { background:#173b63; color:white; padding:1rem 5%; display:flex; justify-content:space-between; }
+        .topbar a { color:#dcecff; margin-left:1rem; text-decoration:none; }
+        main { max-width:760px; margin:2rem auto; padding:0 1rem; }
+        .panel { background:white; padding:1.2rem; border-radius:12px; box-shadow:0 3px 14px #183b6314; }
+        form { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; align-items:end; }
+        label { display:flex; flex-direction:column; gap:.35rem; font-weight:bold; }
+        input { padding:.65rem; border:1px solid #ccd6e2; border-radius:6px; font:inherit; }
+        button { padding:.65rem 1rem; background:#1769aa; color:white; border:0; border-radius:6px; cursor:pointer; }
+        .cancel { color:#1769aa; text-decoration:none; margin-left:.7rem; }
+        .muted { color:#68758a; }
+        @media(max-width:650px) { form { grid-template-columns:1fr; } .topbar { flex-direction:column; gap:.7rem; } }
+    </style>
+</head>
+<body>
+    <div class="topbar"><strong>Smart Attendance</strong><span><a href="{{ url_for('attendance.index') }}">Dashboard</a><a href="{{ url_for('attendance.students') }}">Roster</a><a href="{{ url_for('auth.logout') }}">Log out</a></span></div>
+    <main>
+        <h1>Edit profile</h1>
+        <div class="panel">
+            <p class="muted">Update the details used in the attendance register and CSV exports.</p>
+            <form method="post">
+                <label>Name<input name="name" value="{{ user.name }}" required></label>
+                <label>Roll / employee no.<input name="roll_number" value="{{ user.roll_number or '' }}"></label>
+                <label>Email<input type="email" name="email" value="{{ user.email or '' }}"></label>
+                <label>Section / team / group<input name="section" value="{{ user.section or '' }}"></label>
+                <div><button type="submit">Save changes</button><a class="cancel" href="{{ url_for('attendance.students') }}">Cancel</a></div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

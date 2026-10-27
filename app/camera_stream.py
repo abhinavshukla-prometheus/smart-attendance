@@ -169,9 +169,15 @@ class CameraStream:
             return self._get_jpeg_frame()
 
     def refresh_known_faces(self):
-        """Call after a new enrollment so the stream recognizes the new person without a restart."""
+        """Reload identities and discard recognition state from the old roster."""
         with self._state_lock:
             self.recognizer.load_known_faces()
+            self.streak.clear()
+            self.confirmed_this_session.clear()
+            self.awaiting_liveness.clear()
+            self.closed_frames.clear()
+            self.liveness_wait_frames.clear()
+            self.last_results = []
 
     def release(self):
         if self.cap is not None:

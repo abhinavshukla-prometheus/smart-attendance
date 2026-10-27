@@ -109,6 +109,18 @@ There are two supported enrollment flows.
    lighting.
 5. Return to the dashboard and select **Refresh Known Faces**.
 
+### Remove someone who has left
+
+1. Open **Roster** in the dashboard.
+2. Find the person under **Registered people**.
+3. Click **Remove** and confirm the prompt.
+
+This deletes the person’s profile and face encodings from SQLite, removes their
+enrollment photos from `data/faces/`, removes their linked attendance history,
+and refreshes the live recognizer immediately. The action is permanent, so
+export any attendance records that must be retained before removing the
+profile.
+
 Optional profile fields can be supplied during enrollment:
 
 ```bash
@@ -136,8 +148,10 @@ window.
 - `/` — admin dashboard and live recognition feed
 - `/students` — create profiles and view enrollment status
 - `/attendance` — view attendance for a selected date
-- `/attendance/export.csv` — download one day's attendance as CSV
-- `/register` — view and manually update the monthly register
+- `/attendance/export.csv` — download one day's attendance as CSV, including
+  each person's roll/employee number, email, and section/team
+- `/register` — view and manually update the monthly register, including each
+  person's roster details
 - `/auth/login` and `/auth/logout` — authentication
 
 Attendance is marked only after the configured identity confirmation and

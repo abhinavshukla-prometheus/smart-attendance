@@ -94,9 +94,14 @@ def main():
             session.add(user)
         else:
             user.name = args.name
-        user.roll_number = args.roll_number
-        user.email = args.email
-        user.section = args.section
+        # The dashboard creates these details before enrollment. Only replace
+        # them when an optional command-line value was explicitly supplied.
+        if args.roll_number is not None:
+            user.roll_number = args.roll_number
+        if args.email is not None:
+            user.email = args.email
+        if args.section is not None:
+            user.section = args.section
         user.set_encodings(captured_encodings)
         session.commit()
         print(f"\nSaved user '{args.name}' with id={user.id} ({len(captured_encodings)} encodings).")

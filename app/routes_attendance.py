@@ -5,14 +5,18 @@ date filtering + CSV export.
 
 import csv
 import io
+import shutil
 from calendar import monthrange
 from datetime import date, datetime
+from pathlib import Path
 
 from flask import Blueprint, render_template, Response, session, request, redirect, url_for, flash
 
 from app import login_required
 from app.camera_stream import gen_mjpeg, get_camera
+import config
 from database.db import (
+    delete_user,
     get_session as get_db_session,
     get_attendance_for_date,
     get_attendance_for_month,
@@ -89,6 +93,65 @@ def students():
         return render_template("students.html", users=users, username=session.get("admin_username"))
     finally:
         db_session.close()
+
+
+@attendance_bp.route("/students/<int:user_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_student(user_id):
+    db_session = get_db_session()
+    try:
+        user = db_session.query(User).filter(User.id == user_id).first()
+        if user is None:
+            flash("That profile no longer exists.")
+            return redirect(url_for("attendance.students"))
+
+        if request.method == "POST":
+            name = request.form.get("name", "").strip()
+            if not name:
+                flash("Name is required.")
+            else:
+                user.name = name
+                user.roll_number = request.form.get("roll_number", "").strip() or None
+                user.email = request.form.get("email", "").strip() or None
+                user.section = request.form.get("section", "").strip() or None
+                db_session.commit()
+                flash(f"Updated profile details for {user.name}.")
+                return redirect(url_for("attendance.students"))
+
+        return render_template("edit_student.html", user=user)
+    finally:
+        db_session.close()
+
+
+@attendance_bp.route("/students/<int:user_id>/delete", methods=["POST"])
+@login_required
+def delete_student(user_id):
+    db_session = get_db_session()
+    try:
+        user = db_session.query(User).filter(User.id == user_id).first()
+        if user is None:
+            flash("That profile no longer exists.")
+            return redirect(url_for("attendance.students"))
+
+        # Enrollment photos are stored using the same normalized name as enroll.py.
+        face_dir_name = user.name.replace(" ", "_")
+        face_dir = (config.FACES_DIR / face_dir_name).resolve()
+        faces_root = Path(config.FACES_DIR).resolve()
+        if "/" in face_dir_name or "\\" in face_dir_name or face_dir.parent != faces_root:
+            flash("Could not remove the profile because its face-data path is invalid.")
+            return redirect(url_for("attendance.students"))
+
+        deleted_user = delete_user(db_session, user_id)
+        if face_dir.is_dir():
+            shutil.rmtree(face_dir)
+        get_camera().refresh_known_faces()
+        flash(f"Removed {deleted_user.name} from the recognition roster.")
+    except Exception:
+        db_session.rollback()
+        raise
+    finally:
+        db_session.close()
+    return redirect(url_for("attendance.students"))
 
 
 @attendance_bp.route("/api/stream")
@@ -203,13 +266,32 @@ def export_csv():
     db_session = get_db_session()
     try:
         records = get_attendance_for_date(db_session, target_date)
-        rows = [(r.user.name, r.date.isoformat(), r.time_in.strftime("%H:%M:%S"), r.status) for r in records]
+        rows = [
+            (
+                r.user.name,
+                r.user.roll_number or "",
+                r.user.email or "",
+                r.user.section or "",
+                r.date.isoformat(),
+                r.time_in.strftime("%H:%M:%S"),
+                r.status,
+            )
+            for r in records
+        ]
     finally:
         db_session.close()
 
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(["Name", "Date", "Time In", "Status"])
+    writer.writerow([
+        "Name",
+        "Roll/Employee No.",
+        "Email",
+        "Section/Team/Group",
+        "Date",
+        "Time In",
+        "Status",
+    ])
     writer.writerows(rows)
 
     return Response(

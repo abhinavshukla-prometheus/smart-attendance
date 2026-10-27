@@ -101,6 +101,16 @@ def get_user(session, user_id: int):
     return session.query(User).filter(User.id == user_id).first()
 
 
+def delete_user(session, user_id: int) -> User | None:
+    """Delete an enrolled person and their related attendance records."""
+    user = get_user(session, user_id)
+    if user is None:
+        return None
+    session.delete(user)
+    session.commit()
+    return user
+
+
 def get_users(session):
     return session.query(User).order_by(User.name.asc()).all()
 

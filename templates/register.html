@@ -21,12 +21,12 @@
             <span class="summary">{{ total_present }} present entries / {{ total_possible }} possible ({{ "%.1f"|format(attendance_rate) }}%)</span>
         </div>
         <div class="panel table-wrap">
-            <table><tr><th>Name</th><th>Roll / employee no.</th>{% for day in days %}<th>{{ day.day }}</th>{% endfor %}<th>Total</th></tr>
-            {% for row in rows %}<tr><td class="person">{{ row.user.name }}</td><td class="person">{{ row.user.roll_number or "—" }}</td>
+            <table><tr><th>Name</th><th>Roll / employee no.</th><th>Email</th><th>Section / team / group</th>{% for day in days %}<th>{{ day.day }}</th>{% endfor %}<th>Total</th></tr>
+            {% for row in rows %}<tr><td class="person">{{ row.user.name }}</td><td class="person">{{ row.user.roll_number or "—" }}</td><td class="person">{{ row.user.email or "—" }}</td><td class="person">{{ row.user.section or "—" }}</td>
                 {% for day in days %}<td class="{{ 'present' if row.cells[loop.index0] else 'absent' }}">
                     <form method="post" action="{{ url_for('attendance.update_register') }}"><input type="hidden" name="user_id" value="{{ row.user.id }}"><input type="hidden" name="date" value="{{ day.isoformat() }}"><input type="hidden" name="present" value="{{ 0 if row.cells[loop.index0] else 1 }}"><button title="Toggle attendance">{{ "P" if row.cells[loop.index0] else "A" }}</button></form>
                 </td>{% endfor %}<td class="summary">{{ row.present }}</td></tr>
-            {% else %}<tr><td colspan="{{ days|length + 3 }}">No people in the roster.</td></tr>{% endfor %}</table>
+            {% else %}<tr><td colspan="{{ days|length + 5 }}">No people in the roster.</td></tr>{% endfor %}</table>
         </div>
         <p>Click a date cell to manually correct attendance. Recognition remains the normal automatic marking process.</p>
     </main>

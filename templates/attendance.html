@@ -1,53 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Attendance Records</title>
+    <title>Attendance Table | Smart Attendance</title>
     <style>
-        body { font-family: sans-serif; background: #111; color: #eee; padding: 1.5rem; }
-        .topbar { display: flex; justify-content: space-between; max-width: 700px; margin: 0 auto 1.5rem auto; align-items: center; }
-        .topbar a { color: #9ad; text-decoration: none; margin-left: 1rem; }
-        .wrap { max-width: 700px; margin: 0 auto; }
-        form { margin-bottom: 1rem; display: flex; gap: 0.6rem; align-items: center; }
-        input[type="date"] { padding: 0.4rem; border-radius: 4px; border: 1px solid #333; background: #1c1c1c; color: #eee; }
-        button, .export-btn { padding: 0.45rem 0.9rem; border-radius: 4px; border: none; background: #2e7d32; color: white; cursor: pointer; text-decoration: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 0.5rem 0.7rem; text-align: left; border-bottom: 1px solid #333; }
-        th { color: #9ad; }
-        .empty { color: #888; margin-top: 1rem; }
+        body { font-family: Arial, sans-serif; background:#f4f7fb; color:#172033; margin:0; }
+        .topbar { background:#173b63; color:white; padding:1rem 5%; display:flex; justify-content:space-between; align-items:center; }
+        .topbar a { color:#dcecff; text-decoration:none; margin-left:1rem; }
+        main { max-width:1050px; margin:2rem auto; padding:0 1rem; }
+        .intro { margin-bottom:1.5rem; }
+        .intro h1 { margin-bottom:.4rem; }
+        .intro p { color:#68758a; margin-top:0; }
+        .panel { background:white; padding:1.2rem; border-radius:12px; margin-bottom:1.5rem; box-shadow:0 3px 14px #183b6314; }
+        .toolbar { display:flex; gap:.7rem; align-items:end; flex-wrap:wrap; }
+        .toolbar label { display:flex; flex-direction:column; gap:.35rem; font-size:.9rem; font-weight:bold; }
+        input[type="date"] { padding:.62rem .7rem; border:1px solid #ccd6e2; border-radius:6px; color:#172033; background:white; }
+        button, .export-btn { padding:.65rem 1rem; border:0; border-radius:6px; background:#1769aa; color:white; cursor:pointer; text-decoration:none; font-size:.9rem; }
+        .export-btn { display:inline-block; }
+        .summary { margin-left:auto; color:#1769aa; font-weight:bold; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; }
+        th, td { padding:.75rem; border-bottom:1px solid #e6ebf0; text-align:left; }
+        th { background:#edf3f9; color:#173b63; font-size:.9rem; }
+        tbody tr:hover { background:#f8fbfe; }
+        .status { color:#197044; font-weight:bold; text-transform:capitalize; }
+        .empty { color:#68758a; margin:.2rem 0; }
+        @media(max-width:700px) {
+            .topbar { flex-direction:column; gap:.7rem; align-items:flex-start; }
+            .topbar a:first-child { margin-left:0; }
+            .summary { margin-left:0; width:100%; }
+        }
     </style>
 </head>
 <body>
     <div class="topbar">
-        <span>Logged in as {{ username }}</span>
+        <strong>Smart Attendance</strong>
         <span>
-            <a href="{{ url_for('attendance.index') }}">Live Feed</a>
+            <a href="{{ url_for('attendance.index') }}">Dashboard</a>
+            <a href="{{ url_for('attendance.students') }}">Roster</a>
+            <a href="{{ url_for('attendance.register') }}">Attendance Register</a>
             <a href="{{ url_for('auth.logout') }}">Log out</a>
         </span>
     </div>
 
-    <div class="wrap">
-        <h2>Attendance - {{ selected_date }}</h2>
+    <main>
+        <div class="intro">
+            <h1>Attendance Table</h1>
+            <p>Review the attendance records recorded for a specific date.</p>
+        </div>
 
-        <form method="GET">
-            <input type="date" name="date" value="{{ selected_date }}">
-            <button type="submit">Filter</button>
+        <div class="panel toolbar">
+            <form method="GET" class="toolbar">
+                <label>Date
+                    <input type="date" name="date" value="{{ selected_date }}">
+                </label>
+                <button type="submit">Filter</button>
+            </form>
             <a class="export-btn" href="{{ url_for('attendance.export_csv', date=selected_date) }}">Export CSV</a>
-        </form>
+            <span class="summary">{{ rows|length }} record{{ "" if rows|length == 1 else "s" }}</span>
+        </div>
 
-        {% if rows %}
-        <table>
-            <tr><th>Name</th><th>Time In</th><th>Status</th></tr>
-            {% for row in rows %}
-            <tr>
-                <td>{{ row.name }}</td>
-                <td>{{ row.time_in }}</td>
-                <td>{{ row.status }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% else %}
-        <p class="empty">No attendance recorded for this date.</p>
-        {% endif %}
-    </div>
+        <div class="panel table-wrap">
+            <h2>Attendance - {{ selected_date }}</h2>
+            {% if rows %}
+            <table>
+                <thead><tr><th>Name</th><th>Time In</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.time_in }}</td>
+                    <td class="status">{{ row.status }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty">No attendance recorded for this date.</p>
+            {% endif %}
+        </div>
+    </main>
 </body>
 </html>

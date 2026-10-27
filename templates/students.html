@@ -34,11 +34,13 @@
         </div>
         <div class="panel">
             <h2>Registered people</h2>
-            <table><tr><th>Name</th><th>Roll / employee no.</th><th>Email</th><th>Section / team / group</th><th>Face enrollment</th></tr>
+            <table><tr><th>Name</th><th>Roll / employee no.</th><th>Email</th><th>Section / team / group</th><th>Face enrollment</th><th>Actions</th></tr>
             {% for user in users %}
             <tr><td>{{ user.name }}</td><td>{{ user.roll_number or "—" }}</td><td>{{ user.email or "—" }}</td><td>{{ user.section or "—" }}</td>
-                <td>{% if user.get_encodings() %}<span style="color:#197044">Complete</span>{% else %}<span style="color:#a05a00">Pending</span><br><code>python3 enroll.py --user-id {{ user.id }} --name "{{ user.name }}"</code>{% endif %}</td></tr>
-            {% else %}<tr><td colspan="5" class="muted">No profiles yet.</td></tr>{% endfor %}
+                <td>{% if user.get_encodings() %}<span style="color:#197044">Complete</span>{% else %}<span style="color:#a05a00">Pending</span><br><code>python3 enroll.py --user-id {{ user.id }} --name "{{ user.name }}"</code>{% endif %}</td>
+                <td><a href="{{ url_for('attendance.edit_student', user_id=user.id) }}">Edit</a>
+                    <form method="post" action="{{ url_for('attendance.delete_student', user_id=user.id) }}" style="display:block;" onsubmit="return confirm('Remove {{ user.name|e }} from face recognition? This also deletes their attendance history.');"><button type="submit" style="background:#b42318;">Remove</button></form></td></tr>
+            {% else %}<tr><td colspan="6" class="muted">No profiles yet.</td></tr>{% endfor %}
             </table>
         </div>
     </main>
